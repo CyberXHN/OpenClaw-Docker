@@ -32,7 +32,7 @@ jobs:
           platforms: ${{ env.TARGET_PLATFORM }}
           tags: ${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}
           push: false
-          outputs: type=docker,dest=/tmp/CodeServer_ARM64_${{ github.event.inputs.image_tag }}.tar
+          outputs: type=docker,dest=/tmp/OpenClaw_ARM64_${{ github.event.inputs.image_tag }}.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
@@ -41,8 +41,8 @@ jobs:
       - name: Save image as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CodeServer_ARM64_${{ github.event.inputs.image_tag }}
-          path: /tmp/CodeServer_ARM64_${{ github.event.inputs.image_tag }}.tar
+          name: OpenClaw_ARM64_${{ github.event.inputs.image_tag }}
+          path: /tmp/OpenClaw_ARM64_${{ github.event.inputs.image_tag }}.tar
           retention-days: 30
 
       - name: Display image info
