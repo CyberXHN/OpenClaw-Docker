@@ -3,6 +3,9 @@ FROM ghcr.io/openclaw/openclaw:${UPSTREAM_VERSION}
 
 USER root
 
+# Install Fonts
+RUN apt-get update && apt-get install -y --no-install-recommends fonts-noto-cjk fonts-noto-cjk-extra fonts-wqy-zenhei fonts-wqy-microhei 
+
 # Install Chromium
 RUN apt-get update && apt-get install -y --no-install-recommends chromium
 
