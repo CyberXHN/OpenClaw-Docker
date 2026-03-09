@@ -33,6 +33,7 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}
           push: false
           outputs: type=docker,dest=/tmp/OpenClaw_ARM64_${{ github.event.inputs.image_tag }}.tar
+          no-cache: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
