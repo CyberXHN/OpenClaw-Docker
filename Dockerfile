@@ -14,7 +14,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         iputils-ping dnsutils net-tools iproute2 tcpdump netcat-openbsd traceroute mtr-tiny iperf3 nmap telnet openssh-client \ 
         htop iotop lsof procps sysstat file tree nano \
-        curl wget gnupg software-properties-common build-essential gcc g++ python3 python3-pip git vim lsb-release ca-certificates sudo openjdk-17-jdk maven gdb golang-go ffmpeg && \
+        curl wget gnupg software-properties-common build-essential gcc g++ python3 python3-pip git vim lsb-release ca-certificates sudo openjdk-17-jdk maven gdb golang-go ffmpeg jq && \
     # Creat python link
     ln -sf /usr/bin/python3 /usr/bin/python && \
     # Install PHP
