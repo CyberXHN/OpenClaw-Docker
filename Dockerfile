@@ -15,9 +15,13 @@ RUN apt-get update && \
         curl dumb-init git-lfs locales lsb-release man-db nano vim-tiny wget zsh sudo \
         iputils-ping dnsutils net-tools iproute2 tcpdump netcat-openbsd traceroute mtr-tiny iperf3 nmap telnet openssh-client \ 
         htop iotop lsof procps sysstat file tree \
-        gnupg software-properties-common build-essential gcc cmake g++ python3 python3-pip git vim ca-certificates openjdk-17-jdk maven gdb golang-go ffmpeg jq unzip zip && \
+        gnupg software-properties-common build-essential gcc cmake g++ python3 python3-pip git vim ca-certificates openjdk-17-jdk maven gdb golang-go ffmpeg jq unzip zip \
+        libreoffice-calc libreoffice-writer libreoffice-impress poppler-utils antiword catdoc tesseract-ocr tesseract-ocr-eng tesseract-ocr-chi-sim && \
     # Creat python link
     ln -sf /usr/bin/python3 /usr/bin/python && \
+    # Install office document processing Python libraries
+    pip install --no-cache-dir \
+        python-docx openpyxl xlrd python-pptx PyPDF2 PyMuPDF pdf2image pillow pytesseract textract pandas && \
     # Install PHP
     wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
     echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list && \
