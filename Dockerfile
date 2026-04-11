@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends chromium
 # install Coding Environment
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        curl dumb-init git-lfs locales lsb-release man-db nano vim-tiny wget zsh sudo \
+        curl dumb-init git-lfs locales lsb-release man-db nano vim-tiny wget zsh sudo swig \
         iputils-ping dnsutils net-tools iproute2 tcpdump netcat-openbsd traceroute mtr-tiny iperf3 nmap telnet openssh-client \ 
         htop iotop lsof procps sysstat file tree \
         gnupg software-properties-common build-essential gcc cmake g++ python3 python3-pip git vim ca-certificates openjdk-17-jdk maven gdb golang-go ffmpeg jq unzip zip \
