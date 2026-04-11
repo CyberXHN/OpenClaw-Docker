@@ -20,7 +20,7 @@ RUN apt-get update && \
     # Creat python link
     ln -sf /usr/bin/python3 /usr/bin/python && \
     # Install office document processing Python libraries
-    pip install --no-cache-dir \
+    pip install --no-cache-dir --break-system-packages\
         python-docx openpyxl xlrd python-pptx PyPDF2 PyMuPDF pdf2image pillow pytesseract textract pandas && \
     # Install PHP
     wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
