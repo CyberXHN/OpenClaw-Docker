@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends chromium
 # install Coding Environment
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        curl dumb-init git-lfs locales lsb-release man-db nano vim-tiny wget zsh sudo swig libpulse-dev tesseract-ocr \
+        curl dumb-init git-lfs locales lsb-release man-db nano vim-tiny wget zsh sudo swig libpulse-dev tesseract-ocr pandoc \
         iputils-ping dnsutils net-tools iproute2 tcpdump netcat-openbsd traceroute mtr-tiny iperf3 nmap telnet openssh-client \ 
         htop iotop lsof procps sysstat file tree \
         gnupg software-properties-common build-essential gcc cmake g++ python3 python3-pip python3-dev git vim ca-certificates openjdk-17-jdk maven gdb golang-go ffmpeg jq unzip zip \
@@ -21,7 +21,7 @@ RUN apt-get update && \
     ln -sf /usr/bin/python3 /usr/bin/python && \
     # Install office document processing Python libraries
     pip install --no-cache-dir --break-system-packages\
-        python-docx openpyxl xlrd python-pptx pypdf reportlab markitdown[all] PyMuPDF pdf2image pillow pytesseract textract pandas pandoc && \
+        python-docx openpyxl xlrd python-pptx pypdf reportlab markitdown[all] PyMuPDF pdf2image pillow pytesseract textract pandas && \
     # Install Node.js packages for PPTX generation
     npm install -g pptxgenjs && \
     # Install PHP
