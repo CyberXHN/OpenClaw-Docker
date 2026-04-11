@@ -21,7 +21,7 @@ RUN apt-get update && \
     ln -sf /usr/bin/python3 /usr/bin/python && \
     # Install office document processing Python libraries
     pip install --no-cache-dir --break-system-packages\
-        python-docx openpyxl xlrd python-pptx pypdf reportlab markitdown[pptx] PyMuPDF pdf2image pillow pytesseract textract pandas && \
+        python-docx openpyxl xlrd python-pptx pypdf reportlab markitdown[all] PyMuPDF pdf2image pillow pytesseract textract pandas pandoc && \
     # Install Node.js packages for PPTX generation
     npm install -g pptxgenjs && \
     # Install PHP
