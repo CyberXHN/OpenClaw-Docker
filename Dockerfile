@@ -12,10 +12,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends chromium
 # install Coding Environment
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        curl dumb-init git-lfs locales lsb-release man-db nano vim-tiny wget zsh sudo swig \
+        curl dumb-init git-lfs locales lsb-release man-db nano vim-tiny wget zsh sudo swig libpulse-dev tesseract-ocr \
         iputils-ping dnsutils net-tools iproute2 tcpdump netcat-openbsd traceroute mtr-tiny iperf3 nmap telnet openssh-client \ 
         htop iotop lsof procps sysstat file tree \
-        gnupg software-properties-common build-essential gcc cmake g++ python3 python3-pip git vim ca-certificates openjdk-17-jdk maven gdb golang-go ffmpeg jq unzip zip \
+        gnupg software-properties-common build-essential gcc cmake g++ python3 python3-pip python3-dev git vim ca-certificates openjdk-17-jdk maven gdb golang-go ffmpeg jq unzip zip \
         libreoffice-calc libreoffice-writer libreoffice-impress poppler-utils antiword catdoc tesseract-ocr tesseract-ocr-eng tesseract-ocr-chi-sim && \
     # Creat python link
     ln -sf /usr/bin/python3 /usr/bin/python && \
