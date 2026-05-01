@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: '镜像标签（例如：v1.0.0）'
+        description: 'Image tag (e.g., v1.0.0)'
         required: true
         default: 'latest'
 
@@ -46,10 +46,21 @@ jobs:
           path: /tmp/OpenClaw_ARM64_${{ github.event.inputs.image_tag }}.tar
           retention-days: 30
 
+      - name: Verify image structure
+        run: |
+          docker load -i /tmp/OpenClaw_ARM64_${{ github.event.inputs.image_tag }}.tar
+          echo "=== Verify factory backup file ==="
+          docker run --rm --entrypoint="" ${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }} ls -lh /openclaw-app.tar.gz
+          echo "=== Verify /app directory is empty (awaiting runtime extraction) ==="
+          docker run --rm --entrypoint="" ${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }} ls -la /app/
+          echo "=== Verify entrypoint.sh ==="
+          docker run --rm --entrypoint="" ${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }} cat /entrypoint.sh
+
       - name: Display image info
         run: |
-          echo "镜像构建完成！"
-          echo "镜像名称: ${{ env.IMAGE_NAME }}"
-          echo "镜像标签: ${{ github.event.inputs.image_tag }}"
-          echo "目标平台: ${{ env.TARGET_PLATFORM }}"
-          echo "镜像已保存为工作流产物，可在 Artifacts 中下载"
+          echo "Image build completed!"
+          echo "Image name: ${{ env.IMAGE_NAME }}"
+          echo "Image tag: ${{ github.event.inputs.image_tag }}"
+          echo "Target platform: ${{ env.TARGET_PLATFORM }}"
+          echo "Architecture: App Core Externalization (Rootless + Volume mounting)"
+          echo "Image saved as workflow artifact, available for download in Artifacts"
