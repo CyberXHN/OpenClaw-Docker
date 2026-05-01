@@ -88,7 +88,7 @@ RUN tar -I 'xz -6' -cf /opt/openclaw-backup.tar.xz -C /home/node .npm-global
 
 # Ensure node user owns the npm global directory and config
 RUN chown -R node:node /home/node/.npm-global && \
-    chown -R node:node /home/node/.npm
+    install -d -m 0755 -o node -g node /home/node/.npm
 
 # Pre-create state directories with correct ownership for volume mounting
 # Named volumes inherit these permissions on first creation
