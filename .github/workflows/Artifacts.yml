@@ -1,10 +1,14 @@
-name: ARM64 Version From Official Image
+name: ARM64 Version From npm Registry
 
 on:
   workflow_dispatch:
     inputs:
       image_tag:
         description: 'Image tag (e.g., v1.0.0)'
+        required: true
+        default: 'latest'
+      openclaw_version:
+        description: 'OpenClaw npm version (e.g., latest, 1.2.3)'
         required: true
         default: 'latest'
 
@@ -37,7 +41,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            UPSTREAM_VERSION=${{ github.event.inputs.image_tag }}
+            OPENCLAW_VERSION=${{ github.event.inputs.openclaw_version }}
 
       - name: Save image as artifact
         uses: actions/upload-artifact@v4
@@ -51,17 +55,18 @@ jobs:
           docker load -i /tmp/OpenClaw_ARM64_${{ github.event.inputs.image_tag }}.tar
           IMG=${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}
           echo "=== Verify factory backup file ==="
-          docker run --rm --entrypoint="" $IMG ls -lh /openclaw-app.tar.xz
-          echo "=== Verify /app directory is empty (awaiting runtime extraction) ==="
-          docker run --rm --entrypoint="" $IMG ls -la /app/
-          echo "=== Verify /app is owned by node:node ==="
-          docker run --rm --entrypoint="" $IMG stat -c '%U:%G %a' /app
-          echo "=== Verify symlink /usr/local/bin/openclaw ==="
-          docker run --rm --entrypoint="" $IMG ls -la /usr/local/bin/openclaw
+          docker run --rm --entrypoint="" $IMG ls -lh /opt/openclaw-backup.tar.xz
+          echo "=== Verify npm global directory ==="
+          docker run --rm --entrypoint="" $IMG ls -la /home/node/.npm-global/bin/openclaw
+          docker run --rm --entrypoint="" $IMG ls -la /home/node/.npm-global/lib/node_modules/openclaw/package.json
+          echo "=== Verify npm global directory ownership ==="
+          docker run --rm --entrypoint="" $IMG stat -c '%U:%G %a' /home/node/.npm-global
+          echo "=== Verify openclaw CLI ==="
+          docker run --rm --entrypoint="" $IMG /home/node/.npm-global/bin/openclaw --version
+          echo "=== Verify NPM_CONFIG_PREFIX ==="
+          docker run --rm --entrypoint="" $IMG sh -c 'echo $NPM_CONFIG_PREFIX'
           echo "=== Verify entrypoint.sh ==="
           docker run --rm --entrypoint="" $IMG cat /entrypoint.sh
-          echo "=== Verify corepack/pnpm ==="
-          docker run --rm --entrypoint="" $IMG pnpm --version
           echo "=== Verify image size ==="
           docker images $IMG --format "Size: {{.Size}}"
 
@@ -70,6 +75,7 @@ jobs:
           echo "Image build completed!"
           echo "Image name: ${{ env.IMAGE_NAME }}"
           echo "Image tag: ${{ github.event.inputs.image_tag }}"
+          echo "OpenClaw version: ${{ github.event.inputs.openclaw_version }}"
           echo "Target platform: ${{ env.TARGET_PLATFORM }}"
-          echo "Architecture: App Core Externalization (Rootless + Volume mounting)"
+          echo "Architecture: Rootless npm install with local prefix + Volume mounting"
           echo "Image saved as workflow artifact, available for download in Artifacts"

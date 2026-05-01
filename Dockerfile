@@ -1,18 +1,9 @@
-# ====== Stage 1: Extract OpenClaw app from upstream image ======
-# Extract /app directory from upstream image and package as compressed archive
-# Content from this stage won't be in final image, avoiding size bloat from upstream /app layer
-ARG UPSTREAM_VERSION
-FROM ghcr.io/openclaw/openclaw:${UPSTREAM_VERSION} AS app-extract
+# ====== OpenClaw Docker Image ======
+# Rootless npm global install with local prefix
+# No upstream image extraction needed — installs directly from npm
+# Upgrade: docker exec openclaw-container npm install -g openclaw@latest
+# Or:      docker exec openclaw-container openclaw update
 
-# Switch to root to write archive to root-owned path
-USER root
-
-# Use xz -6 preset compression (dict ~256MB, decompression memory ~512MB, within 1GB limit)
-RUN tar -I 'xz -6' -cf /openclaw-app.tar.xz -C / app
-
-# ====== Stage 2: Build runtime image from slim base ======
-# Start from node:24-bookworm-slim, without upstream /app layer
-# Extract compressed tar.xz only via COPY --from (~150MB vs original ~500MB)
 FROM node:24-bookworm-slim
 
 USER root
@@ -74,34 +65,34 @@ RUN chown -R 1000:1000 /home/node \
   && echo "=== Verify installation results ===" \
   && python --version \
   && php --version \
-  && java -version \
-  && javac -version \
+  && java --version \
+  && javac --version \
   && dotnet --version \
   && go version \
   && gdb --version
 
-# ====== OpenClaw App: Factory Backup Pattern ======
-# Copy compressed app archive from Stage 1 (does NOT include upstream /app layer)
-COPY --from=app-extract /openclaw-app.tar.xz /openclaw-app.tar.xz
+# ====== OpenClaw: Rootless npm local prefix install ======
+# Redirect npm global prefix to node user's home directory
+# This allows npm install -g without root privileges
+# npm install -g writes to /home/node/.npm-global instead of /usr/local
+ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
+ENV PATH="/home/node/.npm-global/bin:${PATH}"
 
-# Extract package.json temporarily for corepack setup, then clean up
-# This ensures pnpm is pre-cached so the node user doesn't need a first-run network fetch
-RUN mkdir -p /tmp/oc-extract && \
-    tar -xJf /openclaw-app.tar.xz -C /tmp/oc-extract app/package.json && \
-    COREPACK_HOME=/usr/local/share/corepack && \
-    install -d -m 0755 "$COREPACK_HOME" && \
-    corepack enable && \
-    corepack prepare "$(node -p "require('/tmp/oc-extract/app/package.json').packageManager")" --activate && \
-    chmod -R a+rX "$COREPACK_HOME" && \
-    rm -rf /tmp/oc-extract
+# Build-time install of OpenClaw (runs as root, installs to node-owned prefix)
+ARG OPENCLAW_VERSION=latest
+RUN SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g openclaw@${OPENCLAW_VERSION}
 
-# Create OpenClaw CLI symlink (points into /app which is a volume at runtime)
-RUN ln -sf /app/openclaw.mjs /usr/local/bin/openclaw
+# Backup initial install for volume first-time initialization
+# When a bind mount is empty on first start, entrypoint restores from this archive
+RUN tar -I 'xz -6' -cf /opt/openclaw-backup.tar.xz -C /home/node .npm-global
 
-# Pre-create directories with correct ownership for volume mounting
+# Ensure node user owns the npm global directory and config
+RUN chown -R node:node /home/node/.npm-global && \
+    chown -R node:node /home/node/.npm
+
+# Pre-create state directories with correct ownership for volume mounting
 # Named volumes inherit these permissions on first creation
-RUN install -d -m 0755 -o node -g node /app && \
-    install -d -m 0700 -o node -g node /home/node/.openclaw && \
+RUN install -d -m 0700 -o node -g node /home/node/.openclaw && \
     install -d -m 0700 -o node -g node /var/lib/openclaw/plugin-runtime-deps
 
 # Copy entrypoint initialization script
@@ -112,9 +103,7 @@ ENV NODE_ENV=production
 
 USER node
 
-WORKDIR /app
-
 ENTRYPOINT ["dumb-init", "--", "/entrypoint.sh"]
 HEALTHCHECK --interval=3m --timeout=10s --start-period=60s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:18789/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["node", "openclaw.mjs", "gateway", "--allow-unconfigured"]
+CMD ["openclaw", "gateway", "--allow-unconfigured"]
