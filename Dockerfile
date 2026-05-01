@@ -55,8 +55,21 @@ RUN chown -R 1000:1000 /home/node \
   && go version \
   && gdb --version
 
+# ====== App Core Externalization: Package /app as Factory Backup ======
+# Package OpenClaw app files as tar.gz, extracted at runtime by entrypoint to mounted volume
+# This allows /app to be mounted via Docker Volume, enabling OpenClaw updates without image rebuild
+RUN tar -zcf /openclaw-app.tar.gz -C / app && \
+    find /app -mindepth 1 -delete && \
+    install -d -m 0755 -o node -g node /app && \
+    install -d -m 0700 -o node -g node /var/lib/openclaw/plugin-runtime-deps
+
+# Copy entrypoint initialization script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 USER node
 
-HEALTHCHECK --interval=3m --timeout=10s --start-period=15s --retries=3 \
+ENTRYPOINT ["dumb-init", "--", "/entrypoint.sh"]
+HEALTHCHECK --interval=3m --timeout=10s --start-period=60s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:18789/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["node", "openclaw.mjs", "gateway", "--allow-unconfigured"]
