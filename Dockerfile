@@ -4,6 +4,9 @@
 ARG UPSTREAM_VERSION
 FROM ghcr.io/openclaw/openclaw:${UPSTREAM_VERSION} AS app-extract
 
+# Switch to root to write archive to root-owned path
+USER root
+
 # Use xz -6 preset compression (dict ~256MB, decompression memory ~512MB, within 1GB limit)
 RUN tar -I 'xz -6' -cf /openclaw-app.tar.xz -C / app
 
